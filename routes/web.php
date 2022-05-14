@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/', function () {
     return view('welcome');
 })->name('homepage');
@@ -30,7 +29,6 @@ Route::group(['middleware' => ['auth:finance']], function () {
     Route::get('finance/dashboard/reports/students', [FinanceController::class, 'showStudentsReport'])->name('reports.students');
     Route::post('finance/dashboard/reports/students', [FinanceController::class, 'reportStudents'])->name('reports.students.filter');
     Route::get('finance/dashboard/reports/students/pdf', [FinanceController::class, 'students_report_pdf'])->name('reports.students.pdf');
-    // Route::get('finance/dashboard/reports/payments', [FinanceController::class, 'showPaymentsReport'])->name('reports.payments');
 });
 
 Route::post('/payments', [PaymentsController::class, 'store'])->middleware(['auth'])->name('payments.store');

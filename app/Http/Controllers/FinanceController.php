@@ -35,7 +35,7 @@ class FinanceController extends Controller
     public function showPayments()
     {
         $time = Carbon::now()->format('d-m-y H:i:m');
-        $payments = Payment::all();
+        $payments = Payment::orderBy('updated_at', 'desc')->get();
         return view('financePayments', compact('time', 'payments'));
     }
 

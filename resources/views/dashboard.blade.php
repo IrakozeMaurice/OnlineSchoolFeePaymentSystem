@@ -37,8 +37,8 @@
   </x-slot>
   <div class="py-12">
     <div class="row">
-      <div class="col-md-4 ml-4">
-        <h5>Student Id: <span
+      <div class="col-md-4">
+        <h5 class="pl-4">Student Id: <span
             class="badge badge-pill badge-success">{{ $student->student_id }}</span></h5>
       </div>
       <div class="col-md-6">
@@ -46,6 +46,7 @@
             class="badge badge-pill badge-primary">{{ $student->names }}</span>
         </h5>
       </div>
+      <div class="col-md-2">{{$charge->percentage >= 100 ? 'PAID' : $charge->percentage.'%'}}</div>
     </div>
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -77,29 +78,50 @@
                 @endif
                 <form action="{{ route('payments.store') }}" method="POST">
                   @csrf
-                  <div class="form-group">
-                    <label for="exampleFormControlSelect1">Select Your Bank</label>
-                    <select class="form-control" id="bankName" name="bankName">
-                      <option>Bank of Kigali</option>
-                      <option>other</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <input type="text" class="form-control" id="accountNumber" name="accountNumber"
-                      placeholder="bank account number" required>
-                  </div>
-                  <div class="form-group">
-                    <input type="number" class="form-control" id="amount" name="amount" placeholder="amount to pay"
-                      required>
-                  </div>
-                  <div class="form-group">
-                    <textarea class="form-control" name="comment" cols="10" rows="2" placeholder=" comment" required></textarea>
-                  </div>
-                  <div class="form-group">
-                    <input name="_method" type="hidden" value="POST">
-                    <button type="submit" id="payBtn" class="btn btn-sm btn-primary show_confirm" data-toggle="tooltip"
-                      @empty($registration) disabled title="can't make payment without registration form" @endempty>pay
-                      now</button>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <h5 class="text-center">Fill in bank slip</h5>
+                      <hr>
+                      <div class="form-group">
+                        <select class="form-control" id="bankName" name="bankName">
+                          <option>Bank of Kigali</option>
+                          <option>other</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <input type="text" class="form-control" id="accountNumber" name="accountNumber"
+                          placeholder="bank account number" required>
+                      </div>
+                      <div class="form-group">
+                        <input type="number" class="form-control" id="amount" name="amount"
+                          placeholder="amount to pay"
+                          required>
+                      </div>
+                      <div class="form-group">
+                        <textarea class="form-control" name="comment" cols="10" rows="2" placeholder=" comment" required></textarea>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <h5 class="text-center">Bank credentials</h5>
+                      <hr>
+
+                      <div class="form-group">
+                        <input type="email" class="form-control" id="email" name="email"
+                          placeholder="Email" required>
+                      </div>
+
+                      <div class="form-group">
+                        <input type="password" class="form-control" id="password" name="password"
+                          placeholder="Password" required>
+                      </div>
+                      <div class="form-group">
+                        <input name="_method" type="hidden" value="POST">
+                        <button type="submit" id="payBtn" class="btn btn-sm btn-block btn-primary show_confirm"
+                          data-toggle="tooltip"
+                          @empty($registration) disabled title="can't make payment without registration form" @endempty>pay
+                          now</button>
+                      </div>
+                    </div>
                   </div>
                 </form>
               </div>
@@ -271,7 +293,7 @@
                       <br>
                       <hr>
                     @empty
-                      <h5 class="jumbotron">No payments found.</h5>
+                      <h5 class="jumbotron text-center">No payments found.</h5>
                     @endforelse
                   </div>
                 </div>

@@ -19,6 +19,8 @@ class PaymentsController extends Controller
             'accountNumber' => ['required'],
             'amount' => ['required'],
             'comment' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
         $client = new \GuzzleHttp\Client();
         $req = $client->get('http://localhost:7000/api/onlineBankSystem/account/' . request('accountNumber'));
@@ -36,17 +38,24 @@ class PaymentsController extends Controller
                         'accountTo' => '040-0280275-75',
                         'amount' => request('amount'),
                         'comment' => request('comment'),
+                        'email' => request('email'),
+                        'password' => request('password')
                     ]
                 ]);
                 $response = json_decode($req->getBody());
-                $transaction = $response;
+                if ($response->message == 'Bad_credentials') {
+                    return back()->withErrors(["creds" => "INVALID BANK CREDENTIALS"]);
+                }
+                if ($response->message == 'Not_owner') {
+                    return back()->withErrors(["invalidAccount" => "YOU DON'T OWN THIS ACCOUNT NUMBER ".request('accountNumber')]);
+                }
                 // ADD TRANSACTION TO PAYMENTS TABLE
                 Payment::create([
                     'student_id' => Student::where('studentId', auth()->user()->studentId)->value('id'),
                     'paymentDate' => Carbon::now()->format('Y-m-d'),
                     'amount' => request('amount'),
-                    'comment' => $transaction->comment,
-                    'bank_slip_number' => $transaction->bank_slip_number
+                    'comment' => request('comment'),
+                    'bank_slip_number' => $response->bank_slip_number
                 ]);
 
                 // UPDATE STUDENT CHARGES
@@ -60,14 +69,14 @@ class PaymentsController extends Controller
                 $charge->update();
 
                 // SEND CONFIRMATION EMAIL
-                $details = [
-                    'title' => 'Mail from auca online school fees payment',
-                    'body' => 'Thank you for using our app! We have successfully processed
-                                your payment of ' . $transaction->amount . 'Rwf to account number
-                                ' . $transaction->account_to_number . ' of ' . $transaction->account_to_name
-                ];
+                // $details = [
+                //     'title' => 'Mail from auca online school fees payment',
+                //     'body' => 'Thank you for using our app! We have successfully processed
+                //                 your payment of ' . $transaction->amount . 'Rwf to account number
+                //                 ' . $transaction->account_to_number . ' of ' . $transaction->account_to_name
+                // ];
 
-                \Mail::to(auth()->user()->email)->send(new PaymentConfirmation($details));
+                // \Mail::to(auth()->user()->email)->send(new PaymentConfirmation($details));
 
                 return back()->with(["success" => "Transaction completed successfully.", "message" => "confirmation Email sent to " . auth()->user()->email . " check your email for more details on the transaction."]);
             }
